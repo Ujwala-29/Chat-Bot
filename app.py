@@ -1,57 +1,45 @@
 import streamlit as st
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from huggingface_hub import login
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Log into Hugging Face if necessary
-# login()  # Uncomment this if needed
+# Log in using your Hugging Face token
+login('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')  # Replace with your Hugging Face token
 
+# Function to get LLM response
 def getLLamaresponse(input_text, no_words, blog_style):
-    # Load the model from Hugging Face
-    model_name = "meta-llama/Llama-2-7b-chat-hf"  # Correct model identifier
-    try:
-        model = AutoModelForCausalLM.from_pretrained(model_name)
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-    except OSError as e:
-        st.error(f"Error loading model: {e}")
-        return
+    # Load pre-trained model and tokenizer
+    model_name = "meta-llama/Llama-2-7b-chat-hf"  # Change this model name to your own Hugging Face model path
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     
-    # Define the prompt
-    prompt = f"Write a blog for {blog_style} job profile for a topic {input_text} within {no_words} words."
+    # Encode the input text
+    input_ids = tokenizer.encode(input_text, return_tensors="pt")
+    
+    # Generate output
+    output = model.generate(input_ids, max_length=no_words, num_return_sequences=1, temperature=0.7)
+    
+    # Decode the output
+    decoded_output = tokenizer.decode(output[0], skip_special_tokens=True)
+    
+    return decoded_output
 
-    # Tokenize the input and generate response
-    inputs = tokenizer(prompt, return_tensors="pt")
-    outputs = model.generate(inputs["input_ids"], max_length=256)
+# Streamlit UI
+def main():
+    st.title("AI Blog Generator")
 
-    # Decode the generated text
-    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Input fields
+    topic = st.text_input("Enter the Blog Topic", "llm")  # Default topic is "llm"
+    no_words = st.slider("Number of Words", 50, 500, 100)  # Word count slider
+    blog_style = st.selectbox("Select Blog Style", ["Common People", "Researchers"])
 
-    return response
+    # Generate button
+    if st.button("Generate Blog"):
+        if topic and no_words:
+            try:
+                result = getLLamaresponse(topic, no_words, blog_style)
+                st.write(result)  # Display generated blog
+            except Exception as e:
+                st.error(f"Error generating blog: {str(e)}")
 
-# Streamlit UI setup
-st.set_page_config(page_title="Generate Blogs",
-                   page_icon='🤖',
-                   layout='centered',
-                   initial_sidebar_state='collapsed')
-
-st.header("Generate Blogs 🤖")
-
-input_text = st.text_input("Enter the Blog Topic")
-
-# Creating two more columns for additional 2 fields
-col1, col2 = st.columns([5, 5])
-
-with col1:
-    no_words = st.text_input('No of Words')
-
-with col2:
-    blog_style = st.selectbox('Writing the blog for',
-                              ('Researchers', 'Data Scientist', 'Common People'), index=0)
-
-submit = st.button("Generate")
-
-# Final response
-if submit:
-    if input_text and no_words and blog_style:
-        st.write(getLLamaresponse(input_text, no_words, blog_style))
-    else:
-        st.warning("Please fill in all the fields.")
+if __name__ == "__main__":
+    main()
