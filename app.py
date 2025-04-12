@@ -1,37 +1,21 @@
-# Q&A Chatbot
-from langchain.llms import OpenAI
-
-#from dotenv import load_dotenv
-
-#load_dotenv()  # take environment variables from .env.
-
 import streamlit as st
-import os
+from transformers import pipeline
 
+# Title
+st.title("🧠 Free AI Chatbot (FLAN-T5)")
 
-## Function to load OpenAI model and get respones
+# Initialize the model
+@st.cache_resource
+def load_model():
+    return pipeline("text2text-generation", model="google/flan-t5-small")
 
-def get_openai_response(question):
-    llm=OpenAI(model_name="text-davinci-003",temperature=0.5)
-    response=llm(question)
-    return response
+generator = load_model()
 
-##initialize our streamlit app
+# User input
+user_input = st.text_input("You:", "")
 
-st.set_page_config(page_title="Q&A Demo")
-
-st.header("Langchain Application")
-
-input=st.text_input("Input: ",key="input")
-response=get_openai_response(input)
-
-submit=st.button("Ask the question")
-
-## If ask button is clicked
-
-if submit:
-    st.subheader("The Response is")
-    st.write(response)
-
-
-
+# Response
+if user_input:
+    prompt = f"Q: {user_input}\nA:"
+    response = generator(prompt, max_length=100, temperature=0.7)[0]['generated_text']
+    st.text_area("AI:", response, height=150)
