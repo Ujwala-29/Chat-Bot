@@ -1,9 +1,14 @@
 import streamlit as st
 from ctransformers import AutoModelForCausalLM
+import os
 
 def getLLamaresponse(input_text, no_words, blog_style):
-    # Ensure the model path is correct and points to a local directory
-    model_path = './models/llama-2-7b-chat.ggmlv3.q8_0.bin'  # Adjust this path to your local model
+    model_path = './models/llama-2-7b-chat.ggmlv3.q8_0.bin'  # Ensure this path is correct
+
+    # Check if the model path exists
+    if not os.path.exists(model_path):
+        return f"Error: The model file does not exist at the specified path: {model_path}"
+
     model = AutoModelForCausalLM.from_pretrained(model_path)
 
     # Define the prompt
