@@ -2,15 +2,15 @@ import streamlit as st
 from ctransformers import AutoModelForCausalLM
 
 def getLLamaresponse(input_text, no_words, blog_style):
-
-    # Load the Llama 2 model directly using ctransformers
+    # Local path to the model
     model = AutoModelForCausalLM.from_pretrained('models/llama-2-7b-chat.ggmlv3.q8_0.bin')
 
+    # Define the prompt
     prompt = f"Write a blog for {blog_style} job profile for a topic {input_text} within {no_words} words."
-    
+
     # Generate the response from the model
     response = model.generate(input_text=prompt, max_length=256)
-    
+
     return response
 
 # Streamlit UI setup
