@@ -2,8 +2,9 @@ import streamlit as st
 from ctransformers import AutoModelForCausalLM
 
 def getLLamaresponse(input_text, no_words, blog_style):
-    # Local path to the model
-    model = AutoModelForCausalLM.from_pretrained('models/llama-2-7b-chat.ggmlv3.q8_0.bin')
+    # Ensure the model path is correct and points to a local directory
+    model_path = './models/llama-2-7b-chat.ggmlv3.q8_0.bin'  # Adjust this path to your local model
+    model = AutoModelForCausalLM.from_pretrained(model_path)
 
     # Define the prompt
     prompt = f"Write a blog for {blog_style} job profile for a topic {input_text} within {no_words} words."
