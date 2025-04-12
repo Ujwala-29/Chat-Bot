@@ -2,15 +2,19 @@ import streamlit as st
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from huggingface_hub import login
 
-def getLLamaresponse(input_text, no_words, blog_style):
-    # Ensure you're logged into Hugging Face if necessary
-    # login()  # Uncomment this if you need to authenticate manually
-    
-    # Load the model from Hugging Face
-    model_name = "meta-llama/Llama-2-7b-chat-hf"  # Correct Hugging Face model identifier
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+# Log into Hugging Face if necessary
+# login()  # Uncomment this if needed
 
+def getLLamaresponse(input_text, no_words, blog_style):
+    # Load the model from Hugging Face
+    model_name = "meta-llama/Llama-2-7b-chat-hf"  # Correct model identifier
+    try:
+        model = AutoModelForCausalLM.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+    except OSError as e:
+        st.error(f"Error loading model: {e}")
+        return
+    
     # Define the prompt
     prompt = f"Write a blog for {blog_style} job profile for a topic {input_text} within {no_words} words."
 
