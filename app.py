@@ -1,9 +1,13 @@
 import streamlit as st
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from huggingface_hub import login
 
 def getLLamaresponse(input_text, no_words, blog_style):
-    # Use Hugging Face model directly
-    model_name = "meta-llama/Llama-2-7b-chat-hf"  # Hugging Face model ID
+    # Ensure you're logged into Hugging Face if necessary
+    # login()  # Uncomment this if you need to authenticate manually
+    
+    # Load the model from Hugging Face
+    model_name = "meta-llama/Llama-2-7b-chat-hf"  # Correct Hugging Face model identifier
     model = AutoModelForCausalLM.from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
