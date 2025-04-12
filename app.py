@@ -1,21 +1,21 @@
 import streamlit as st
-from ctransformers import AutoModelForCausalLM
-import os
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 def getLLamaresponse(input_text, no_words, blog_style):
-    model_path = './models/llama-2-7b-chat.ggmlv3.q8_0.bin'  # Ensure this path is correct
-
-    # Check if the model path exists
-    if not os.path.exists(model_path):
-        return f"Error: The model file does not exist at the specified path: {model_path}"
-
-    model = AutoModelForCausalLM.from_pretrained(model_path)
+    # Use Hugging Face model directly
+    model_name = "meta-llama/Llama-2-7b-chat-hf"  # Hugging Face model ID
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     # Define the prompt
     prompt = f"Write a blog for {blog_style} job profile for a topic {input_text} within {no_words} words."
 
-    # Generate the response from the model
-    response = model.generate(input_text=prompt, max_length=256)
+    # Tokenize the input and generate response
+    inputs = tokenizer(prompt, return_tensors="pt")
+    outputs = model.generate(inputs["input_ids"], max_length=256)
+
+    # Decode the generated text
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     return response
 
